@@ -1,0 +1,19 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Generated Postcard</title>
+</head>
+<body>
+    <h1>Generated Postcard</h1>
+    <iframe src="{{ postcard_url }}" width="800px" height="600px"></iframe>
+    <br>
+    <a href="{{ postcard_url }}" download>Download Postcard</a>
+
+    <script>
+        setTimeout(function() {
+            fetch("/delete/{{ filename }}")
+        }, 5000); // 5 seconds delay
+    </script>
+</body>
+</html>

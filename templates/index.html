@@ -1,0 +1,27 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Postcard Generator</title>
+</head>
+<body>
+    <h1>Postcard Generator</h1>
+    <form action="/generate_postcard" method="post">
+        <label for="name">Recipient Name:</label><br>
+        <input type="text" id="name" name="name"><br>
+        <label for="address1">Address Line 1:</label><br>
+        <input type="text" id="address1" name="address1"><br>
+        <label for="address2">Address Line 2:</label><br>
+        <input type="text" id="address2" name="address2"><br>
+        <label for="address3">Address Line 3:</label><br>
+        <input type="text" id="address3" name="address3"><br>
+        <label for="address4">Address Line 4:</label><br>
+        <input type="text" id="address4" name="address4"><br>
+        <label for="zipcode">Zip Code:</label><br>
+        <input type="text" id="zipcode" name="zipcode"><br>
+        <label for="message">Message:</label><br>
+        <textarea id="message" name="message" rows="4" cols="50"></textarea><br><br>
+        <input type="submit" value="Generate Postcard">
+    </form>
+</body>
+</html>
