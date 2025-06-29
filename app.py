@@ -6,6 +6,7 @@ from datetime import datetime
 import random
 import os
 import boto3
+from botocore.config import Config
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -61,7 +62,8 @@ def generate_postcard():
         's3',
         aws_access_key_id=os.environ.get('AWS_ACCESS_KEY_ID'),
         aws_secret_access_key=os.environ.get('AWS_SECRET_ACCESS_KEY'),
-        region_name=os.environ.get('AWS_REGION')
+        region_name=os.environ.get('AWS_REGION'),
+        config=Config(signature_version='s3v4')
     )
     bucket_name = os.environ.get('AWS_BUCKET')
     s3.upload_fileobj(pdf_buffer, bucket_name, 'test/' + filename)
@@ -74,7 +76,8 @@ def get_postcard_pdf(filename):
         's3',
         aws_access_key_id=os.environ.get('AWS_ACCESS_KEY_ID'),
         aws_secret_access_key=os.environ.get('AWS_SECRET_ACCESS_KEY'),
-        region_name=os.environ.get('AWS_REGION')
+        region_name=os.environ.get('AWS_REGION'),
+        config=Config(signature_version='s3v4')
     )
     bucket_name = os.environ.get('AWS_BUCKET')
     s3_key = 'test/' + filename
@@ -96,7 +99,8 @@ def delete_file(filename):
             's3',
             aws_access_key_id=os.environ.get('AWS_ACCESS_KEY_ID'),
             aws_secret_access_key=os.environ.get('AWS_SECRET_ACCESS_KEY'),
-            region_name=os.environ.get('AWS_REGION')
+            region_name=os.environ.get('AWS_REGION'),
+            config=Config(signature_version='s3v4')
         )
         bucket_name = os.environ.get('AWS_BUCKET')
         s3.delete_object(Bucket=bucket_name, Key='test/' + filename)
