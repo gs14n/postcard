@@ -46,7 +46,7 @@ def generate_postcard():
     timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
     random_num = random.randint(1000, 9999)
     filename = f"postcard_{timestamp}_{random_num}.pdf"
-    output_path = f"static/{filename}"
+    output_path = f"/tmp/{filename}"
     doc.save(output_path)
     doc.close()
     return render_template("postcard.html", postcard_url=output_path, filename=filename)
@@ -54,7 +54,7 @@ def generate_postcard():
 @app.route('/delete/<filename>')
 def delete_file(filename):
     try:
-        os.remove(f"static/{filename}")
+        os.remove(f"/tmp/{filename}")
         return "", 204
     except FileNotFoundError:
         return "File not found", 404
