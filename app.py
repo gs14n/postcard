@@ -1,10 +1,14 @@
 
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request, send_file, Response
 import fitz  # PyMuPDF
+import io
 from datetime import datetime
 import random
 import os
+import boto3
+from dotenv import load_dotenv
 
+load_dotenv()
 app = Flask(__name__)
 
 @app.route('/')
@@ -46,18 +50,60 @@ def generate_postcard():
     timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
     random_num = random.randint(1000, 9999)
     filename = f"postcard_{timestamp}_{random_num}.pdf"
-    output_path = f"/tmp/{filename}"
-    doc.save(output_path)
+    # Save PDF to a memory buffer
+    pdf_buffer = io.BytesIO()
+    doc.save(pdf_buffer)
     doc.close()
-    return render_template("postcard.html", postcard_url=output_path, filename=filename)
+    pdf_buffer.seek(0)
+
+    # Upload to S3
+    s3 = boto3.client(
+        's3',
+        aws_access_key_id=os.environ.get('AWS_ACCESS_KEY_ID'),
+        aws_secret_access_key=os.environ.get('AWS_SECRET_ACCESS_KEY'),
+        region_name=os.environ.get('AWS_REGION')
+    )
+    bucket_name = os.environ.get('AWS_BUCKET')
+    s3.upload_fileobj(pdf_buffer, bucket_name, 'test/' + filename)
+
+    return render_template("postcard.html", filename=filename)
+
+@app.route('/get_postcard_pdf/<filename>')
+def get_postcard_pdf(filename):
+    s3 = boto3.client(
+        's3',
+        aws_access_key_id=os.environ.get('AWS_ACCESS_KEY_ID'),
+        aws_secret_access_key=os.environ.get('AWS_SECRET_ACCESS_KEY'),
+        region_name=os.environ.get('AWS_REGION')
+    )
+    bucket_name = os.environ.get('AWS_BUCKET')
+    s3_key = 'test/' + filename
+
+    try:
+        s3_response = s3.get_object(Bucket=bucket_name, Key=s3_key)
+        
+        return Response(
+            s3_response['Body'].read(),
+            mimetype='application/pdf'
+        )
+    except s3.exceptions.NoSuchKey:
+        return "File not found on S3", 404
 
 @app.route('/delete/<filename>')
 def delete_file(filename):
     try:
-        os.remove(f"/tmp/{filename}")
+        s3 = boto3.client(
+            's3',
+            aws_access_key_id=os.environ.get('AWS_ACCESS_KEY_ID'),
+            aws_secret_access_key=os.environ.get('AWS_SECRET_ACCESS_KEY'),
+            region_name=os.environ.get('AWS_REGION')
+        )
+        bucket_name = os.environ.get('AWS_BUCKET')
+        s3.delete_object(Bucket=bucket_name, Key='test/' + filename)
         return "", 204
-    except FileNotFoundError:
-        return "File not found", 404
+    except Exception as e:
+        print(f"Error deleting file from S3: {e}")
+        return "Error deleting file", 500
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -6,9 +6,9 @@
 </head>
 <body>
     <h1>Generated Postcard</h1>
-    <iframe src="{{ postcard_url }}" width="800px" height="600px"></iframe>
+    <embed src="{{ url_for('get_postcard_pdf', filename=filename) }}" type="application/pdf" width="800px" height="600px" />
     <br>
-    <a href="{{ postcard_url }}" download>Download Postcard</a>
+    <a href="{{ url_for('get_postcard_pdf', filename=filename) }}" download>Download Postcard</a>
 
     <script>
         setTimeout(function() {
