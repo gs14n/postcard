@@ -33,6 +33,11 @@ def generate_postcard():
     doc = fitz.open("india_mail_postcard_message.pdf")
     page = doc[0]
 
+    # --- Stamp --- #
+    # 450,10,530,90
+    stamp_rect = fitz.Rect(350,0,560,105)
+    page.insert_image(stamp_rect, filename="stamped.png")
+
     # --- To Address --- #
     page.insert_text((300, 105), name, fontsize=12, fontname="helv")
     page.insert_text((300, 135), address1, fontsize=12, fontname="helv")
@@ -110,4 +115,4 @@ def delete_file(filename):
         return "Error deleting file", 500
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run("0.0.0.0", debug=True)
